@@ -26,6 +26,8 @@ Route::get('/usuarios', function (){
     return view('verUsuarios');
 });
 
+Route::post('/login', [consumirAPIController::class, 'login'])->name('iniciar.sesion');
+
 Route::post('/consumir-guardas-datos-usuario', [consumirAPIController::class, 'registrarUsuario'])->name('enviar.datos_usuario');
 Route::get('/consumir-mostrar-datos-usuario', [consumirAPIController::class, 'mostrarUsuarios'])->name('mostrar.datos_usuarios');
 // Route::get('/usuarios', [consumirAPIController::class, 'mostrarUsuarios'])->name('mostrar.datos_usuarios');

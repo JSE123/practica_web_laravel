@@ -139,6 +139,25 @@
         pointer-events: none;
     }
 
+    
+
+    .ocultar{ /*mensaje de error*/
+        display: none;
+    }
+    .mensaje-error{
+        margin-left: 20px;
+        color: red;
+
+    }
+    /**cambia el color del borde donde hay un error */
+    #email-repetido{
+        border: red;
+    }
+
+    .password-error{
+        border: red;
+    }
+
     /* cambios */
 
         /* .boton-aceptar:active{
@@ -154,7 +173,7 @@
   </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
-<body>
+<body class="bg-secondary">
     <div class="contenido">
         <!-- header  -->
         <!-- <nav class="navbar bg-body-tertiary"> -->
@@ -205,29 +224,32 @@
             <div class="text">
                 <h1>Register form</h1>
             </div>
-            <form action="{{Route('registrar.usuario')}}" method="POST" enctype="multipart/form-data">
+            <form id="datosRegistro" method="POST" enctype="multipart/form-data">
+            <!-- <form action="{{Route('registrarse')}}" method="POST" enctype="multipart/form-data"> -->
                 @csrf
                 <!-- @METHOD('POST') -->
                 <div class="fila">
-                    <input type="text" name="first_name" placeholder="First Name">
+                    <input type="text" name="name" placeholder="First Name">
                     <input type="text"name="last_name"  placeholder="Last Name">
                 </div>
                 <input type="email" name="email" placeholder="Email ID">
-                <input type="Password" name="password" placeholder="Password">
-                <input type="Password" placeholder="Confirm password">
+                <input type="Password" class ="password" name="password" placeholder="Password">
+                <input type="Password" class ="password" name="password_confirmation" placeholder="Confirm password">
                 <input type="submit" value="Register" class="boton-aceptar">
             </form>
         </div>
     </div>
-    <div class="login-form">
+    <div class="login-form" >
         <div class="form">
             <div class="close" onclick="loginToggle()">&times;</div>
             <div class="text">
                 <h1>Login</h1>
             </div>
-            <form action="#">
-                <input type="email" placeholder="Email ID">
-                <input type="Password" placeholder="Password">
+            <form id="login" method="POST" enctype="multipart/form-data">
+            <!-- <form action="{{Route('login')}}" method="POST" enctype="multipart/form-data"> -->
+                <input type="email" id="email" name="email" placeholder="Email ID">
+                <input type="Password" name="password" placeholder="Password">
+                <label for="" id="mensajeError" class="ocultar mensaje-error">Usuario o contraseña incorrecta</label>
                 <input type="submit" value="Log in" class="boton-aceptar">
             </form>
         </div>
@@ -246,7 +268,6 @@
 
         }
         function loginToggle(){
-            console.log("haciendo clic")
             var container = document.querySelector('.contenido');
             container.classList.toggle('active')
            
@@ -254,36 +275,91 @@
             popup.classList.toggle('active');
 
         }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            //LOGIN 
+            const datosLogin = document.getElementById("login");
+            const labelMensajeError = document.getElementById("mensajeError");
+
+            datosLogin.addEventListener('submit', function(event){
+
+                event.preventDefault();
+                const formData = new FormData(datosLogin);
+
+                fetch('http://127.0.0.1:8000/api/login',{
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        labelMensajeError.classList.remove('ocultar');
+                        throw new Error('No se pudo obtener la respuesta del servidor.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Manejar los datos obtenidos
+                    console.log('Datos recibidos:', data);
+
+                    // // Mostrar los datos en el DOM
+                    // const resultadoElemento = document.getElementById('resultado');
+                    // resultadoElemento.innerText = `Nombre: ${data.nombre}, Edad: ${data.edad}`;
+                })
+                .catch(error => {
+                    console.error('Error al obtener datos:', error);
+                });
+            })
+            // FIN LOGIN
+
+            // REGISTRO 
+            const datosRegistro = document.getElementById('datosRegistro');
+            datosRegistro.addEventListener('submit', function(event){
+
+                event.preventDefault();
+                const formDataRegistro = new FormData(datosRegistro);
+
+                fetch('http://127.0.0.1:8000/api/registrarse',{
+                    method: 'POST',
+                    body: formDataRegistro
+                })
+                .then(response => {
+                    if(!response.ok){
+                        if (response.status === 400) {
+                            // Manejar el caso específico de código de estado 400
+                            console.error('Error de cliente: La solicitud es inválida.');
+                            
+                            // Aquí podrías realizar acciones adicionales, como mostrar un mensaje al usuario.
+                        } else {
+                            throw new Error('No se pudo obtener la respuesta del servidor.');
+                        }
+
+                        // throw new Error('No se pudo obtener la respuesta del servidor.');
+
+                    }
+                    console.log(response)
+                    return response.json();
+
+                })
+                .then(data => {
+                    console.log('Data: ', data.error);
+                    if(data.error.email){
+                        console.log("es el email")
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error al obtener datos:', error);
+                });
+
+            })
+
+            // FIN REGISTRO
+            
+        });
+
+        
     </script> 
     <!-- FIN FUNCIONAMIENTO -->
-
-    <!-- modal 
-    <div class="modal fade" id="modal_inicio_sesion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content ">
-        <div class="modal-header ">
-            <h1 class="modal-title fs-5  fw-bold text-center" id="exampleModalLabel">Inicio de sesion</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form id="loginForm ">
-                <div class="form-group ms-3">
-                    <label for="username ms-4">Usuario:</label><br>
-                    <input type="text" class="borde-inferior" id="username" placeholder="Ingresa tu usuario" required>
-                </div>
-                <div class="form-group ms-3 mt-3">
-                    <label for="password">Contraseña:</label><br>
-                    <input type="password" class="borde-inferior" id="password" placeholder="Ingresa tu contraseña" required>
-                </div>
-                <button type="submit" class="bg-primary ms-2 mt-2 boton-iniciar">Iniciar sesión</button>
-            </form>
-        </div>
-       
-        </div>
-    </div>
-    </div>
-
-    <input type="text" class="borde-inferior"> -->
 
     
     <!-- <button type="button" class="btn">Base class</button> -->

@@ -53,4 +53,29 @@ class consumirAPIController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function login(Request $request){
+        // datos a enviar
+        $datos = [
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+        ];
+        
+
+        try {
+           
+            
+            $response = Http::post('http://127.0.0.1:8000/api/login', $datos);
+            if ($response->successful()) {
+                // La solicitud fue exitosa (código de estado entre 200 y 299)
+                return $response->json();
+            } else {
+                // Manejar la respuesta en caso de error
+                return $response->status();
+            }
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
